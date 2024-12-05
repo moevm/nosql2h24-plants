@@ -2,87 +2,94 @@
   <Navbar />
   <div class="page-layout">
     <div class="sidebar">
-      <img src="../../../public/logo.png" alt="Plant Shop Logo" class="logo" />
-      <div class="add-form">
-        <label class="create-label">Создать объявление</label>
+      <div class="side-form">
+        <img src="../../../public/logo.png" alt="Plant Shop Logo" class="logo"/>
         <form @submit.prevent="submitForm">
-          <label class="label-add">
+          <div class="inputs-labels">
             Тип растения
-            <input class="form-group-input" v-model="formData.type" type="text" placeholder="Введите тип" />
-          </label>
+            <input class="inputs" v-model="formData.type" placeholder="Наименование типа" />
+          </div>
 
-          <label class="label-add">
+          <div class="inputs-labels">Размер</div>
+          <label class="checkbox-labels"><input v-model="formData.size" type="checkbox" value="Маленькие (до 20 см)" /> Маленькие (до 20 см)</label>
+          <br>
+          <label class="checkbox-labels"><input v-model="formData.size" type="checkbox" value="Средние (от 20 до 50 см)" /> Средние (от 20 до 50 см)</label>
+          <br>
+          <label class="checkbox-labels"><input v-model="formData.size" type="checkbox" value="Большие (более 50 см)" /> Большие (более 50 см)</label>
+
+          <div class="inputs-labels">Условия освещения</div>
+          <label class="checkbox-labels"><input v-model="formData.lighting" type="checkbox" value="Тенелюбивые" /> Тенелюбивые</label>
+          <br>
+          <label class="checkbox-labels"><input v-model="formData.lighting" type="checkbox" value="Полутеневые" /> Полутеневые</label>
+          <br>
+          <label class="checkbox-labels"><input v-model="formData.lighting" type="checkbox" value="Светолюбивые" /> Светолюбивые</label>
+
+          <div class="inputs-labels">Частота полива</div>
+          <label class="checkbox-labels"><input v-model="formData.wateringFrequency" type="checkbox" value="Редкий полив (раз в 2 недели)" /> Редкий полив (раз в 2 недели)</label>
+          <br>
+          <label class="checkbox-labels"><input v-model="formData.wateringFrequency" type="checkbox" value="Средний полив (1-2 раза в неделю)" /> Средний полив (1-2 раза в неделю)</label>
+          <br>
+          <label class="checkbox-labels"><input v-model="formData.wateringFrequency" type="checkbox" value="Частый полив (ежедневно)" /> Частый полив (ежедневно)</label>
+
+          <div class="inputs-labels">Температурный режим</div>
+          <label class="checkbox-labels"><input v-model="formData.temperature" type="checkbox" value="Холодостойкие (до 15°C)" /> Холодостойкие (до 15°C)</label>
+          <br>
+          <label class="checkbox-labels"><input v-model="formData.temperature" type="checkbox" value="Средний режим (15-22°C)" /> Средний режим (15-22°C)</label>
+          <br>
+          <label class="checkbox-labels"><input v-model="formData.temperature" type="checkbox" value="Теплолюбивые (более 22°C)" /> Теплолюбивые (более 22°C)</label>
+
+          <div class="inputs-labels">Сложность ухода</div>
+          <label class="checkbox-labels"><input v-model="formData.careLevel" type="checkbox" value="Для начинающих" /> Для начинающих</label>
+          <br>
+          <label class="checkbox-labels"><input v-model="formData.careLevel" type="checkbox" value="Требует среднего ухода" /> Требует среднего ухода</label>
+          <br>
+          <label class="checkbox-labels"><input v-model="formData.careLevel" type="checkbox" value="Для опытных цветоводов" /> Для опытных цветоводов</label>
+          <br>
+
+          <div class="inputs-labels">
+            Слова в описании
+            <textarea class="inputs" v-model="formData.description" placeholder="Что-то важное для вас"></textarea>
+          </div>
+
+          <div class="inputs-labels">
             Вид растения
-            <input class="form-group-input" v-model="formData.species" type="text" placeholder="Введите вид" />
-          </label>
+            <input class="inputs" v-model="formData.species" type="text" placeholder="Наименование вида" />
+          </div>
 
-          <fieldset>
-            <legend class="label-add">Размер</legend>
-            <label><input v-model="formData.size" type="radio" value="Маленькие (до 20 см)" /> Маленькие (до 20 см)</label>
-            <br>
-            <label><input v-model="formData.size" type="radio" value="Средние (от 20 до 50 см)" /> Средние (от 20 до 50 см)</label>
-            <br>
-            <label><input v-model="formData.size" type="radio" value="Большие (более 50 см)" /> Большие (более 50 см)</label>
-          </fieldset>
-
-          <fieldset>
-            <legend class="label-add">Условия освещения</legend>
-            <label><input v-model="formData.lighting" type="radio" value="Тенелюбивые" /> Тенелюбивые</label>
-            <br>
-            <label><input v-model="formData.lighting" type="radio" value="Полутеневые" /> Полутеневые</label>
-            <br>
-            <label><input v-model="formData.lighting" type="radio" value="Светолюбивые" /> Светолюбивые</label>
-          </fieldset>
-
-          <fieldset>
-            <legend class="label-add">Частота полива</legend>
-            <label><input v-model="formData.wateringFrequency" type="radio" value="Редкий полив (раз в 2 недели)" /> Редкий полив (раз в 2 недели)</label>
-            <br>
-            <label><input v-model="formData.wateringFrequency" type="radio" value="Средний полив (1-2 раза в неделю)" /> Средний полив (1-2 раза в неделю)</label>
-            <br>
-            <label><input v-model="formData.wateringFrequency" type="radio" value="Частый полив (ежедневно)" /> Частый полив (ежедневно)</label>
-          </fieldset>
-
-          <fieldset>
-            <legend class="label-add">Температурный режим</legend>
-            <label class="radio-label"><input v-model="formData.temperature" type="radio" value="Холодостойкие (до 15°C)" /> Холодостойкие (до 15°C)</label>
-            <br>
-            <label><input v-model="formData.temperature" type="radio" value="Средний режим (15-22°C)" /> Средний режим (15-22°C)</label>
-            <br>
-            <label><input v-model="formData.temperature" type="radio" value="Теплолюбивые (более 22°C)" /> Теплолюбивые (более 22°C)</label>
-          </fieldset>
-
-          <fieldset>
-            <legend class="label-add">Сложность ухода</legend>
-            <label><input v-model="formData.careLevel" type="radio" value="Для начинающих" /> Для начинающих</label>
-            <br>
-            <label><input v-model="formData.careLevel" type="radio" value="Требует среднего ухода" /> Требует среднего ухода</label>
-            <br>
-            <label><input v-model="formData.careLevel" type="radio" value="Для опытных цветоводов" /> Для опытных цветоводов</label>
-          </fieldset>
-
-          <label class="label-add">
-            Описание
-            <textarea class="description-plant" v-model="formData.description" placeholder="Введите описание"></textarea>
-          </label>
-
-          <label class="label-add">
+          <div class="inputs-labels">
             Город
-            <input class="form-group-input" v-model="formData.city" type="text" placeholder="Введите город" />
-          </label>
+            <input class="inputs" v-model="formData.city" type="text" placeholder="Введите город" />
+          </div>
 
-          <label class="label-add">
+          <div class="inputs-labels">
             Цена, Р
-            <input class="form-group-input" v-model="formData.price" type="number" placeholder="Введите цену" />
-          </label>
+            <div style="display: flex; justify-content: space-between">
+              <input class="inputs" style="margin-right: 2%" v-model="formData.priceFrom" type="number" placeholder="От" />
+              <input class="inputs" v-model="formData.priceTo" type="number" placeholder="До" />
+            </div>
+          </div>
 
-          <input type="file" @change="addImage" />
-          <button type="submit" class="add-button">Опубликовать</button>
+          <button type="submit" style="margin-top: 2%" class="green-button-white-text">Показать объявления</button>
         </form>
       </div>
     </div>
 
     <div class="plant-container">
+      <div class="search-plants">
+        <input class="search-input" v-model="search" type="text" placeholder="Поиск по объявлениям" />
+        <button class="green-button-white-text" id="search-button">Найти</button>
+      </div>
+
+      <div class="select-sort">
+        <select class="custom-select" v-model="sort_type">
+          <option disabled value="">Сортировка</option>
+          <option>По умолчанию</option>
+          <option>Дешевле</option>
+          <option>Дороже</option>
+          <option>По дате</option>
+        </select>
+      </div>
+
       <div class="plant-grid">
         <div v-for="plant in plants" class="plant-card">
           <div class="plant-content">
@@ -117,16 +124,19 @@ export default {
       formData: {
         type: '',
         species: '',
-        size: '',
-        lighting: '',
-        wateringFrequency: '',
-        temperature: '',
-        careLevel: '',
+        size: [],
+        lighting: [],
+        wateringFrequency: [],
+        temperature: [],
+        careLevel: [],
         description: '',
         city: '',
-        price: null,
+        priceFrom: null,
+        priceTo: null,
         image: '',
       },
+      search: '',
+      sort_type: '',
       userId: ''
     };
   },
@@ -166,6 +176,7 @@ export default {
     },
 
     submitForm() {
+      console.log(this.formData.image)
       this.createPlant();
     },
 
@@ -225,117 +236,59 @@ export default {
 </script>
 
 <style scoped>
-.page-layout {
-  display: flex;
+@import "../../../main.css";
+@import "../../../plants.css";
+
+#search-button {
+  margin-left: 1%;
+  width: 8%;
 }
 
-.add-form {
-  width: 80%;
-  padding-left: 20px;
-}
-
-.logo {
-  margin-top: 14%;
-  margin-left: 5%;
+.custom-select {
+  font-family: 'Century Gothic', sans-serif;
+  font-size: 13px;
+  color: #000000;
   width: 200px;
-  height: auto;
-}
-
-.create-label {
-  font-family: 'Century Gothic', sans-serif;
-  font-size: 13px;
-  font-weight: bold;
-  display: block;
-  margin-bottom: 10px;
-  color: #89A758;
-}
-
-.label-add {
-  font-family: 'Century Gothic', sans-serif;
-  font-size: 13px;
-  font-weight: bold;
-  display: block;
-  margin-bottom: 10px;
-}
-
-.add-button {
-  margin-top: 2%;
-  width: 100%;
-  font-family: 'Century Gothic', sans-serif;
-  font-size: 13px;
-  font-weight: bold;
-  color: #89A758;
-  background-color: transparent;
-  border: 2px solid #89A758;
-  border-radius: 10px;
-  padding: 10px 15px;
+  padding: 10px;
+  border-color: transparent;
+  background-color: #FFFFFF;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
   cursor: pointer;
-  align-items: center;
-  position: relative;
 }
 
-.form-group-input {
-  width: 100%;
-  padding-top: 10px;
-  padding-bottom: 10px;
-  border: 1px solid #EEECEC;
-  border-radius: 10px;
-  background-color: #EEECEC;
+.custom-select:focus {
+  border-color: transparent;
+  outline: none;
 }
 
-.plant-container {
-  margin-top: 7%;
+.custom-select::after {
+  position: absolute;
+  border: 2px solid transparent;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
 }
 
-.plant-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-}
-
-.plant-card {
-  width: 19%;
-  box-sizing: border-box;
-  margin-bottom: 30px;
-}
-
-.plant-content {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.plant-image {
-  width: 170px;
-  height: 170px;
-  margin-bottom: 5px;
-}
-
-.plant-info {
-  text-align: left;
-}
-
-.plant-title {
-  color: #89A758;
-  font-weight: bold;
+.custom-select option {
+  font-weight: 400;
+  color: #000000;
+  padding: 10px;
+  background-color: #FFFFFF;
 }
 
 .plant-price {
+  font-family: 'Century Gothic', sans-serif;
   color: black;
   font-weight: bold;
 }
 
 .plant-place,
 .plant-date {
+  font-size: 13px;
+  font-family: 'Century Gothic', sans-serif;
   color: #7E7E7E;
-}
-
-textarea {
-  width: 100%;
-  height: 70px;
-  border-radius: 8px;
-  border: 1px solid #EEECEC;
-  background-color: #EEECEC;
-  resize: none;
 }
 </style>

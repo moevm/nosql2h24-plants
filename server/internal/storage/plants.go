@@ -16,24 +16,6 @@ type valsType interface {
 	string | primitive.ObjectID
 }
 
-// {
-//     _id: ObjectId('5f3e8c1d1a9e3f1b1b2c3d19'),
-//     species: 'Плющ',
-//     description: [
-//       {
-//         user_id: ObjectId('5f2d8c1d1d8e2f1a1a2b3c7e'),
-//         description_addition: 'Поливайте мягкой водой, избегая застоя.',
-//         created_at: ISODate('2024-12-01T10:30:00.000Z')
-//       }
-//     ],
-//     created_at: ISODate('2024-12-01T10:30:00.000Z'),
-//     updated_at: ISODate('2024-12-01T10:30:00.000Z'),
-//     image: 'https://avatars.mds.yandex.net/i?id=8c2f8a972981d9594dbcbee96c16cace_l-6489726-images-thumbs&n=13',
-//     light_condition: 'Полутеневые',
-//     temperature_regime: 'Средний режим (15-22°C)',
-//     type: 'Комнатное растение'
-//   }
-
 func (s *Storage) GetPlantsWithCareRules(ctx context.Context, fltr *models.Filter) ([]*models.CareRules, error) {
 	collection := s.DataBase.Collection("care_rules")
 	filter := parseLabelsToBSON(fltr.Labels)
@@ -151,10 +133,11 @@ func (s *Storage) AddPlant(ctx context.Context, plant *models.Plant) error {
 
 func (s *Storage) GetPlantsForTrade(ctx context.Context, id string) ([]*models.Plant, error) {
 	collection := s.DataBase.Collection("plants")
+	objID, err := primitive.ObjectIDFromHex(id)
 
 	filter := bson.D{
-		{"user_id", id},
-		{"sold_at", ""},
+		{"user_id", objID},
+		{"sold_at", time.Time{}},
 	}
 	doc, err := collection.Find(ctx, filter)
 	if err != nil {

@@ -15,7 +15,7 @@
       <div class="modal-content" @click.stop>
         <header class="modal-header">
           <div style="display: flex; justify-content: space-between; width: 100%;">
-            <h2>Запросы</h2>
+            <h2 color="black">Запросы</h2>
             <button @click="closeModal" class="close-button">X</button>
           </div>
           <div style="margin-top: 2%;">
@@ -164,6 +164,9 @@ export default {
 </script>
 
 <style scoped>
+@import "../../main.css";
+@import "../../modal.css";
+
 .navbar {
   display: flex;
   align-items: center;
@@ -209,51 +212,6 @@ export default {
 .clickable {
   cursor: pointer;
   margin-right: 10px;
-}
-
-.modal-overlay {
-  font-family: 'Century Gothic', sans-serif;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: #fff;
-  width: 60%;
-  max-width: 500px;
-  padding: 20px;
-  border-radius: 8px;
-  position: relative;
-}
-
-.modal-header {
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #ccc;
-  padding-bottom: 10px;
-  margin-bottom: 10px;
-}
-
-.modal-header h2 {
-  color: black;
-  font-size: 1.5em;
-  margin: 0;
-}
-
-.close-button {
-  background: none;
-  border: none;
-  font-size: 1.5em;
-  cursor: pointer;
-  color: #333;
 }
 
 .modal-body p {
