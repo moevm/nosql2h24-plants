@@ -4,13 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"html"
 	"log"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func (s *Storage) ImportDB(ctx context.Context, dataJson string) error {
+func (s *Storage) ImportDB(ctx context.Context, jsonData []byte) error {
+	// Очистка базы данных
 	collections, err := s.Client.Database("plants_market").ListCollectionNames(ctx, bson.D{})
 	if err != nil {
 		return errors.New("ошибка получения списка коллекций: " + err.Error())
@@ -20,24 +22,22 @@ func (s *Storage) ImportDB(ctx context.Context, dataJson string) error {
 			return errors.New("ошибка очистки коллекции " + collectionName + ": " + err.Error())
 		}
 	}
-
 	log.Println("База данных успешно очищена.")
 
+	// Парсим JSON-данные
 	var data map[string][]bson.M
-	if err := json.Unmarshal([]byte(dataJson), &data); err != nil {
-		return errors.New("не удалось распарсить JSON: " + err.Error())
+	if err := json.Unmarshal(jsonData, &data); err != nil {
+		return errors.New("ошибка парсинга JSON: " + err.Error())
 	}
 
+	// Импортируем данные в каждую коллекцию
 	for collectionName, documents := range data {
 		if len(documents) == 0 {
 			continue
 		}
-		newDoc := make([]interface{}, len(documents))
-		for i := range documents {
-			newDoc[i] = documents[i]
-		}
+
 		collection := s.Client.Database("plants_market").Collection(collectionName)
-		_, err := collection.InsertMany(ctx, newDoc)
+		_, err := collection.InsertMany(ctx, documents)
 		if err != nil {
 			return errors.New("ошибка вставки данных в коллекцию " + collectionName + ": " + err.Error())
 		}
@@ -46,24 +46,37 @@ func (s *Storage) ImportDB(ctx context.Context, dataJson string) error {
 	return nil
 }
 
-func (s *Storage) ExportDB(ctx context.Context) (string, error) {
+func (s *Storage) ExportDB(ctx context.Context) ([]byte, error) {
 	data := make(map[string]interface{})
 	collections := []string{"users", "plants", "trades", "care_rules"}
 
+	// Читаем данные из всех коллекций
 	for _, col := range collections {
 		collectionData, err := readCollection(ctx, s.Client, "plants_market", col)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
-		data[col] = collectionData
+		data[col] = sanitizeData(collectionData)
 	}
 
+	// Преобразуем данные в JSON
 	jsonData, err := json.Marshal(data)
 	if err != nil {
-		return "", err
+		return nil, errors.New("ошибка преобразования данных в JSON: " + err.Error())
 	}
 
-	return string(jsonData), nil
+	return jsonData, nil
+}
+
+func sanitizeData(data []bson.M) []bson.M {
+	for _, doc := range data {
+		for key, value := range doc {
+			if str, ok := value.(string); ok {
+				doc[key] = html.EscapeString(str) // Очистка строк
+			}
+		}
+	}
+	return data
 }
 
 func readCollection(ctx context.Context, client *mongo.Client, dbName, colName string) ([]bson.M, error) {
@@ -78,5 +91,6 @@ func readCollection(ctx context.Context, client *mongo.Client, dbName, colName s
 	if err = cursor.All(ctx, &results); err != nil {
 		return nil, err
 	}
+
 	return results, nil
 }

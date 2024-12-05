@@ -7,8 +7,8 @@ import (
 )
 
 type Storage interface {
-	ExportDB(context.Context) (string, error)
-	ImportDB(context.Context, string) error
+	ExportDB(context.Context) ([]byte, error)
+	ImportDB(context.Context, []byte) error
 }
 
 type Handler struct {
