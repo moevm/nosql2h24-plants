@@ -44,7 +44,7 @@ type Plant struct {
 	Species           string             `bson:"species" json:"species"`
 	CreatedAt         time.Time          `bson:"created_at" json:"created_at"`
 	Place             string             `bson:"place" json:"place"`
-	SoldAt            time.Time          `bson:"sold_at,omitempty" json:"sold_at"`
+	SoldAt            time.Time          `bson:"sold_at" json:"sold_at"`
 }
 
 type TradeUser struct {

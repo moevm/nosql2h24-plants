@@ -2,91 +2,93 @@
   <Navbar />
   <div class="page-layout">
     <div class="sidebar">
-      <img src="../../../public/logo.png" alt="Plant Shop Logo" class="logo" />
-      <div class="add-form">
-        <label class="create-label">Создать объявление</label>
+      <div class="side-form">
+        <img src="../../../public/logo.png" alt="Plant Shop Logo" class="logo"/>
         <form @submit.prevent="submitForm">
-          <label class="label-add">
+          <div class="inputs-labels">
             Тип растения
-            <input class="form-group-input" v-model="formData.type" type="text" placeholder="Введите тип" />
-          </label>
+            <input class="inputs" v-model="filter.type" placeholder="Наименование типа" />
+          </div>
 
-          <label class="label-add">
-            Вид растения
-            <input class="form-group-input" v-model="formData.species" type="text" placeholder="Введите вид" />
-          </label>
+          <div class="inputs-labels">Размер</div>
+          <label class="checkbox-labels"><input v-model="filter.size" type="checkbox" value="Маленькие (до 20 см)" /> Маленькие (до 20 см)</label>
+          <br>
+          <label class="checkbox-labels"><input v-model="filter.size" type="checkbox" value="Средние (от 20 до 50 см)" /> Средние (от 20 до 50 см)</label>
+          <br>
+          <label class="checkbox-labels"><input v-model="filter.size" type="checkbox" value="Большие (более 50 см)" /> Большие (более 50 см)</label>
 
-          <fieldset>
-            <legend class="label-add">Размер</legend>
-            <label><input v-model="formData.size" type="radio" value="Маленькие (до 20 см)" /> Маленькие (до 20 см)</label>
-            <br>
-            <label><input v-model="formData.size" type="radio" value="Средние (от 20 до 50 см)" /> Средние (от 20 до 50 см)</label>
-            <br>
-            <label><input v-model="formData.size" type="radio" value="Большие (более 50 см)" /> Большие (более 50 см)</label>
-          </fieldset>
+          <div class="inputs-labels">Условия освещения</div>
+          <label class="checkbox-labels"><input v-model="filter.lighting" type="checkbox" value="Тенелюбивые" /> Тенелюбивые</label>
+          <br>
+          <label class="checkbox-labels"><input v-model="filter.lighting" type="checkbox" value="Полутеневые" /> Полутеневые</label>
+          <br>
+          <label class="checkbox-labels"><input v-model="filter.lighting" type="checkbox" value="Светолюбивые" /> Светолюбивые</label>
 
-          <fieldset>
-            <legend class="label-add">Условия освещения</legend>
-            <label><input v-model="formData.lighting" type="radio" value="Тенелюбивые" /> Тенелюбивые</label>
-            <br>
-            <label><input v-model="formData.lighting" type="radio" value="Полутеневые" /> Полутеневые</label>
-            <br>
-            <label><input v-model="formData.lighting" type="radio" value="Светолюбивые" /> Светолюбивые</label>
-          </fieldset>
+          <div class="inputs-labels">Частота полива</div>
+          <label class="checkbox-labels"><input v-model="filter.wateringFrequency" type="checkbox" value="Редкий полив (раз в 2 недели)" /> Редкий полив (раз в 2 недели)</label>
+          <br>
+          <label class="checkbox-labels"><input v-model="filter.wateringFrequency" type="checkbox" value="Средний полив (1-2 раза в неделю)" /> Средний полив (1-2 раза в неделю)</label>
+          <br>
+          <label class="checkbox-labels"><input v-model="filter.wateringFrequency" type="checkbox" value="Частый полив (ежедневно)" /> Частый полив (ежедневно)</label>
 
-          <fieldset>
-            <legend class="label-add">Частота полива</legend>
-            <label><input v-model="formData.wateringFrequency" type="radio" value="Редкий полив (раз в 2 недели)" /> Редкий полив (раз в 2 недели)</label>
-            <br>
-            <label><input v-model="formData.wateringFrequency" type="radio" value="Средний полив (1-2 раза в неделю)" /> Средний полив (1-2 раза в неделю)</label>
-            <br>
-            <label><input v-model="formData.wateringFrequency" type="radio" value="Частый полив (ежедневно)" /> Частый полив (ежедневно)</label>
-          </fieldset>
+          <div class="inputs-labels">Температурный режим</div>
+          <label class="checkbox-labels"><input v-model="filter.temperature" type="checkbox" value="Холодостойкие (до 15°C)" /> Холодостойкие (до 15°C)</label>
+          <br>
+          <label class="checkbox-labels"><input v-model="filter.temperature" type="checkbox" value="Средний режим (15-22°C)" /> Средний режим (15-22°C)</label>
+          <br>
+          <label class="checkbox-labels"><input v-model="filter.temperature" type="checkbox" value="Теплолюбивые (более 22°C)" /> Теплолюбивые (более 22°C)</label>
 
-          <fieldset>
-            <legend class="label-add">Температурный режим</legend>
-            <label class="radio-label"><input v-model="formData.temperature" type="radio" value="Холодостойкие (до 15°C)" /> Холодостойкие (до 15°C)</label>
-            <br>
-            <label><input v-model="formData.temperature" type="radio" value="Средний режим (15-22°C)" /> Средний режим (15-22°C)</label>
-            <br>
-            <label><input v-model="formData.temperature" type="radio" value="Теплолюбивые (более 22°C)" /> Теплолюбивые (более 22°C)</label>
-          </fieldset>
+          <div class="inputs-labels">Сложность ухода</div>
+          <label class="checkbox-labels"><input v-model="filter.careLevel" type="checkbox" value="Для начинающих" /> Для начинающих</label>
+          <br>
+          <label class="checkbox-labels"><input v-model="filter.careLevel" type="checkbox" value="Требует среднего ухода" /> Требует среднего ухода</label>
+          <br>
+          <label class="checkbox-labels"><input v-model="filter.careLevel" type="checkbox" value="Для опытных цветоводов" /> Для опытных цветоводов</label>
+          <br>
 
-          <fieldset>
-            <legend class="label-add">Сложность ухода</legend>
-            <label><input v-model="formData.careLevel" type="radio" value="Для начинающих" /> Для начинающих</label>
-            <br>
-            <label><input v-model="formData.careLevel" type="radio" value="Требует среднего ухода" /> Требует среднего ухода</label>
-            <br>
-            <label><input v-model="formData.careLevel" type="radio" value="Для опытных цветоводов" /> Для опытных цветоводов</label>
-          </fieldset>
+          <div class="inputs-labels">
+            Слова в описании
+            <textarea class="inputs" v-model="filter.description" placeholder="Что-то важное для вас"></textarea>
+          </div>
 
-          <label class="label-add">
-            Описание
-            <textarea class="description-plant" v-model="formData.description" placeholder="Введите описание"></textarea>
-          </label>
-
-          <label class="label-add">
+          <div class="inputs-labels">
             Город
-            <input class="form-group-input" v-model="formData.city" type="text" placeholder="Введите город" />
-          </label>
+            <input class="inputs" v-model="filter.place" type="text" placeholder="Введите город" />
+          </div>
 
-          <label class="label-add">
+          <div class="inputs-labels">
             Цена, Р
-            <input class="form-group-input" v-model="formData.price" type="number" placeholder="Введите цену" />
-          </label>
+            <div style="display: flex; justify-content: space-between">
+              <input class="inputs" style="margin-right: 2%" v-model="filter.priceFrom" type="number" placeholder="От" />
+              <input class="inputs" v-model="filter.priceTo" type="number" placeholder="До" />
+            </div>
+          </div>
 
-          <input type="file" @change="addImage" />
-          <button type="submit" class="add-button">Опубликовать</button>
+          <button type="submit" style="margin-top: 2%" class="green-button-white-text">Показать объявления</button>
         </form>
       </div>
     </div>
 
     <div class="plant-container">
+      <div class="search-plants">
+        <input class="search-input" v-model="filter.species" type="text" placeholder="Поиск по объявлениям"/>
+        <button class="green-button-white-text" id="search-button" @click="submitForm">Найти</button>
+      </div>
+
+      <div class="select-sort">
+        <select class="custom-select" v-model="sort_type">
+          <option disabled value="">Сортировка</option>
+          <option value="">По умолчанию</option>
+          <option value="price">Дешевле</option>
+          <option value="price">Дороже</option>
+          <option value="date">По дате</option>
+        </select>
+      </div>
+
       <div class="plant-grid">
         <div v-for="plant in plants" class="plant-card">
           <div class="plant-content">
-            <img v-if="plant.image" :src="plant.image" alt="Plant Image" class="plant-image" />
+            <img @click="navigate(plant.id, plant.species)" v-if="plant.image" :src="plant.image" alt="Plant Image" class="plant-image" />
             <div class="plant-info">
               <div v-if="plant.species" class="plant-title">{{ plant.species }}</div>
               <div v-if="plant.price" class="plant-price">{{ formatPrice(plant.price) }}</div>
@@ -95,6 +97,20 @@
             </div>
           </div>
         </div>
+        <div
+            v-for="n in (5 - (plants.length % 5))"
+            v-if="plants.length % 5 !== 0"
+            class="plant-card placeholder"
+        ></div>
+      </div>
+      <div style="display: flex">
+        <vue-awesome-paginate
+            :total-items="plantsCount"
+            :items-per-page="15"
+            :max-pages-shown="Math.ceil(plantsCount / 15)"
+            v-model="currentPage"
+            @click="getPlants"
+        />
       </div>
     </div>
   </div>
@@ -103,110 +119,85 @@
 <script>
 import Navbar from "@/components/Navbar.vue";
 import axios from "axios";
-
-const PLANTS_URL = '/api/plants';
-const NEW_PLANT_URL = '/api/plants/add';
+import {VueAwesomePaginate} from "vue-awesome-paginate";
+import {ref} from "vue";
 
 export default {
   name: "Sale",
-  components: { Navbar },
+  components: {VueAwesomePaginate, Navbar },
 
   data() {
     return {
+      currentPage: ref(1),
       plants: [],
-      formData: {
+      filter: {
         type: '',
         species: '',
-        size: '',
-        lighting: '',
-        wateringFrequency: '',
-        temperature: '',
-        careLevel: '',
+        size: [],
+        lighting: [],
+        wateringFrequency: [],
+        temperature: [],
+        careLevel: [],
         description: '',
-        city: '',
-        price: null,
-        image: '',
+        place: '',
+        priceFrom: null,
+        priceTo: null,
       },
-      userId: ''
+      sort_type: '',
+      isDesc: true,
+      userId: '',
+      plantsCount: 0
     };
   },
 
   mounted() {
     this.getPlants();
-    this.userId = sessionStorage.getItem("id");
   },
 
   methods: {
+    normalizePrice(price) {
+      return price !== null ? price : 0;
+    },
+
     async getPlants() {
+      this.plants = [];
+      const plantData = {
+        isDesc: this.isDesc,
+        filter: {
+          place: this.filter.place,
+          size: this.filter.size,
+          priceFrom: this.normalizePrice(this.filter.priceFrom),
+          priceTo: this.normalizePrice(this.filter.priceToe),
+          lightCondition: this.filter.lighting,
+          wateringFrequency: this.filter.wateringFrequency,
+          temperatureRegime: this.filter.temperature,
+          careComplexity: this.filter.careLevel,
+          description: this.filter.description,
+          type: this.filter.type,
+          species: this.filter.species,
+        }
+      };
+
       axios
-          .get(PLANTS_URL)
+          .post(`/api/plants/${this.currentPage}/15/${this.sort_type}`, plantData)
           .then((response) => {
             response.data.plants.forEach(elem => {
               let plant = {
+                id: elem.id,
                 image: elem.image,
                 species: elem.species,
                 price: elem.price,
                 createdAt: elem.createdAt,
                 place: elem.place
               };
-              this.plants.push(plant)
-            })
+              this.plants.push(plant);
+            });
+            this.plantsCount = parseInt(response.data.count);
           })
     },
 
-    addImage(event) {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          this.formData.image = e.target.result;
-        };
-        reader.readAsDataURL(file);
-      }
-    },
-
     submitForm() {
-      this.createPlant();
-    },
-
-    async createPlant() {
-      const plantData = {
-        image: 'https://i.pinimg.com/736x/c2/ad/d9/c2add9a552ba76ebe2c1c42e487766f7.jpg',
-        place: this.formData.city,
-        size: this.formData.size,
-        price: this.formData.price,
-        lightCondition: this.formData.lighting,
-        wateringFrequency: this.formData.wateringFrequency,
-        temperatureRegime: this.formData.temperature,
-        careComplexity: this.formData.careLevel,
-        description: this.formData.description,
-        type: this.formData.type,
-        species: this.formData.species,
-        createdAt: new Date(),
-        userId: this.userId
-      };
-
-      try {
-        await axios.post(NEW_PLANT_URL, plantData);
-        alert('Объявление успешно добавлено!');
-        this.clearForm();
-        location.reload();
-      } catch (error) {
-        alert('Произошла ошибка при добавлении объявления. Попробуйте снова.');
-      }
-    },
-
-    clearForm() {
-      this.formData.city = '';
-      this.formData.size = '';
-      this.formData.price = '';
-      this.formData.lighting = '';
-      this.formData.wateringFrequency = '';
-      this.formData.temperature = '';
-      this.formData.careLevel = '';
-      this.formData.description = '';
-      this.formData.type = '';
-      this.formData.species = '';
+      this.getPlants();
     },
 
     formatDate(date) {
@@ -219,123 +210,57 @@ export default {
 
     formatPrice(price) {
       return `${price} ₽`;
+    },
+
+    navigate(plant_id, species) {
+      sessionStorage.setItem("specificPlant", plant_id);
+      this.$router.push(`/plants/sale/${species}`)
     }
   }
 }
 </script>
 
-<style scoped>
-.page-layout {
-  display: flex;
+<style>
+@import "../../../main.css";
+@import "../../../plants.css";
+
+#search-button {
+  margin-left: 1%;
+  width: 8%;
 }
 
-.add-form {
-  width: 80%;
-  padding-left: 20px;
-}
-
-.logo {
-  margin-top: 14%;
-  margin-left: 5%;
+.custom-select {
+  font-family: 'Century Gothic', sans-serif;
+  font-size: 13px;
+  color: #000000;
   width: 200px;
-  height: auto;
-}
-
-.create-label {
-  font-family: 'Century Gothic', sans-serif;
-  font-size: 13px;
-  font-weight: bold;
-  display: block;
-  margin-bottom: 10px;
-  color: #89A758;
-}
-
-.label-add {
-  font-family: 'Century Gothic', sans-serif;
-  font-size: 13px;
-  font-weight: bold;
-  display: block;
-  margin-bottom: 10px;
-}
-
-.add-button {
-  margin-top: 2%;
-  width: 100%;
-  font-family: 'Century Gothic', sans-serif;
-  font-size: 13px;
-  font-weight: bold;
-  color: #89A758;
-  background-color: transparent;
-  border: 2px solid #89A758;
-  border-radius: 10px;
-  padding: 10px 15px;
+  padding: 10px;
+  border-color: transparent;
+  background-color: #FFFFFF;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
   cursor: pointer;
-  align-items: center;
-  position: relative;
 }
 
-.form-group-input {
-  width: 100%;
-  padding-top: 10px;
-  padding-bottom: 10px;
-  border: 1px solid #EEECEC;
-  border-radius: 10px;
-  background-color: #EEECEC;
+.custom-select:focus {
+  border-color: transparent;
+  outline: none;
 }
 
-.plant-container {
-  margin-top: 7%;
+.custom-select::after {
+  position: absolute;
+  border: 2px solid transparent;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
 }
 
-.plant-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-}
-
-.plant-card {
-  width: 19%;
-  box-sizing: border-box;
-  margin-bottom: 30px;
-}
-
-.plant-content {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.plant-image {
-  width: 170px;
-  height: 170px;
-  margin-bottom: 5px;
-}
-
-.plant-info {
-  text-align: left;
-}
-
-.plant-title {
-  color: #89A758;
-  font-weight: bold;
-}
-
-.plant-price {
-  color: black;
-  font-weight: bold;
-}
-
-.plant-place,
-.plant-date {
-  color: #7E7E7E;
-}
-
-textarea {
-  width: 100%;
-  height: 70px;
-  border-radius: 8px;
-  border: 1px solid #EEECEC;
-  background-color: #EEECEC;
-  resize: none;
+.custom-select option {
+  font-weight: 400;
+  color: #000000;
+  padding: 10px;
+  background-color: #FFFFFF;
 }
 </style>
