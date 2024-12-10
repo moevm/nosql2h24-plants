@@ -1,0 +1,24 @@
+.user-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.user-photo {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column; /* Размещение текста в столбик */
+}
+
+.user-details p {
+    text-align: right;
+    margin: 0;
+    font-family: 'Century Gothic', sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+}

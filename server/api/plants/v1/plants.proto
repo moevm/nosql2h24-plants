@@ -198,6 +198,7 @@ message GetPlantsForTradeV1Response {
         string price = 2;
         string place = 3;
         google.protobuf.Timestamp createdAt = 4;
+        string id = 5;
         
     }
     repeated PlantInfo plants = 1;

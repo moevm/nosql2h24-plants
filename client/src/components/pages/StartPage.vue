@@ -3,14 +3,16 @@
     <div class="login-container">
       <div class="header">
         <button
-            class="auth-button"
+            class="green-button-white-text"
+            id="auth-button"
             :class="{ active: isLogin }"
             @click="switchToLogin"
         >
           Авторизация
         </button>
         <button
-            class="auth-button"
+            class="green-button-white-text"
+            id="auth-button"
             :class="{ active: !isLogin }"
             @click="switchToRegister"
         >
@@ -20,7 +22,7 @@
       <form @submit.prevent="submitForm">
         <div v-if="!isLogin" class="form-group">
           <input
-              type="text"
+              class="inputs"
               v-model="name"
               placeholder="ФИО"
               required
@@ -29,7 +31,7 @@
 
         <div class="form-group">
           <input
-              type="text"
+              class="inputs"
               v-model="login"
               :placeholder="isLogin ? 'Почта/Номер телефона' : 'Почта/Номер телефона'"
               required
@@ -38,14 +40,15 @@
 
         <div class="form-group">
           <input
-              type="password"
+              class="inputs"
               v-model="password"
               placeholder="Пароль"
               required
+              type="password"
           />
         </div>
 
-        <button type="submit" class="login-button">
+        <button type="submit" class="green-button-white-text" id="login-button">
           {{ isLogin ? 'Войти' : 'Зарегистрироваться' }}
         </button>
       </form>
@@ -98,33 +101,76 @@ export default {
       }
     },
 
-    async auth() {
-      const userData = {
-          login: this.login,
-          password: this.password
-      };
-
-      const response = await axios.post(AUTH_URL, userData);
-      sessionStorage.setItem("id", response.data.id);
-      sessionStorage.setItem("role", response.data.role);
-      this.$router.push('/plants/sale');
+    errorRegister() {
+      this.$notify({
+        title: "Ошибка!",
+        text: "Произошла ошибка при регистрации, попробуйте еще раз.",
+        type: 'error'
+      });
     },
 
-    async register() {
-      const [name, surname, fatherName] = this.name.split(" ");
+    errorAuth() {
+      this.$notify({
+        title: "Ошибка!",
+        text: "Произошла ошибка при входе, попробуйте еще раз.",
+        type: 'error'
+      });
+    },
+
+    successRegister() {
+      this.$notify({
+        title: "Получилось!",
+        text: "Регистрация прошла успешно.",
+        type: 'success'
+      });
+    },
+
+    async auth() {
       const userData = {
-        name: name,
-        surname: surname,
-        fatherName: fatherName,
-        email: this.login,
+        login: this.login,
         password: this.password
       };
 
       try {
-        await axios.post(REGISTER_URL, userData);
-        alert('Регистрация выполнена успешно!');
+        const response = await axios.post(AUTH_URL, userData);
+        sessionStorage.setItem("id", response.data.id);
+        sessionStorage.setItem("role", response.data.role);
+        this.$router.push('/plants/sale');
       } catch (error) {
-        alert('Произошла ошибка при регистрации. Попробуйте снова.');
+        this.errorAuth();
+      }
+    },
+
+    async register() {
+      const [surname, name, fatherName] = this.name.split(" ");
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const phoneRegex = /^\+?\d{10,15}$/;
+      let userData = {};
+
+      if (emailRegex.test(this.login)) {
+        userData = {
+          name: name,
+          surname: surname,
+          fatherName: fatherName,
+          email: this.login,
+          password: this.password
+        };
+      } else if (phoneRegex.test(this.login)) {
+        userData = {
+          name: name,
+          surname: surname,
+          fatherName: fatherName,
+          phoneNumber: this.login,
+          password: this.password
+        };
+      }
+
+      try {
+        await axios.post(REGISTER_URL, userData);
+        this.successRegister();
+      } catch (error) {
+        this.errorRegister();
       }
     }
   }
@@ -132,18 +178,19 @@ export default {
 </script>
 
 <style scoped>
+@import "../../../main.css";
+
 .login-page {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  font-family: 'Century Gothic', sans-serif;
 }
 
 .login-container {
   width: 400px;
   padding: 20px;
-  background-color: #fff;
+  background-color: #FFFFFF;
   border: 1px solid #989898;
   border-radius: 10px;
   box-sizing: border-box;
@@ -154,57 +201,22 @@ export default {
   margin-bottom: 20px;
 }
 
-.auth-button {
+#auth-button {
   flex: 1;
-  font-size: 18px;
-  font-weight: bold;
-  background-color: #89A758;
-  color: #fff;
-  padding: 10px;
-  border: none;
-  border-radius: 10px 10px 0 0;
-  cursor: pointer;
 }
 
-.auth-button.active {
+#auth-button.active {
   background-color: #ffffff;
   color: #000000;
-  border-bottom: 2px solid #89A758;
+  cursor: none;
 }
 
-.auth-button:not(.active):hover {
+#auth-button:not(.active):hover {
   background-color: #77934a;
 }
 
-.form-group {
-  margin-bottom: 15px;
-}
-
-input[type="text"],
-input[type="password"] {
+#login-button {
   width: 100%;
-  padding: 10px;
-  font-size: 14px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  background-color: #EDEDED;
-  box-sizing: border-box;
-}
-
-.login-button {
-  width: 100%;
-  padding: 10px;
-  font-size: 16px;
-  background-color: #89A758;
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
   margin-top: 10px;
-  font-weight: bold;
-}
-
-.login-button:hover {
-  background-color: #77934a;
 }
 </style>

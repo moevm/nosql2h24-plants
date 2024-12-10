@@ -1,99 +1,140 @@
 <template>
   <Navbar />
   <div class="page-layout">
-    <div class="sidebar">
-      <img src="../../../public/logo.png" alt="Plant Shop Logo" class="logo" />
-      <button class="add-info-button" @click="showModal = true">Добавить информацию</button>
+    <div style="flex-direction: column; align-items: center; padding-top: 50px; width: 20%">
+      <div>
+        <img src="../../../public/logo.png" alt="Plant Shop Logo" class="logo"/>
+        <form @submit.prevent="submitFilter">
+          <div class="inputs-labels">
+            Тип растения
+            <input class="inputs" v-model="filter.type" type="text" placeholder="Наименование типа" />
+          </div>
+
+          <div class="inputs-labels">Условия освещения</div>
+          <label class="checkbox-labels"><input v-model="filter.lightCondition" type="checkbox" value="Тенелюбивые" /> Тенелюбивые</label>
+          <br>
+          <label class="checkbox-labels"><input v-model="filter.lightCondition" type="checkbox" value="Полутеневые" /> Полутеневые</label>
+          <br>
+          <label class="checkbox-labels"><input v-model="filter.lightCondition" type="checkbox" value="Светолюбивые" /> Светолюбивые</label>
+
+          <div class="inputs-labels">Температурный режим</div>
+          <label class="checkbox-labels"><input v-model="filter.temperatureRegime" type="checkbox" value="Холодостойкие (до 15°C)" /> Холодостойкие (до 15°C)</label>
+          <br>
+          <label class="checkbox-labels"><input v-model="filter.temperatureRegime" type="checkbox" value="Средний режим (15-22°C)" /> Средний режим (15-22°C)</label>
+          <br>
+          <label class="checkbox-labels"><input v-model="filter.temperatureRegime" type="checkbox" value="Теплолюбивые (более 22°C)" /> Теплолюбивые (более 22°C)</label>
+
+          <button type="submit" class="green-button-white-text">Отфильтровать</button>
+          <button class="white-button-green-text" @click="isAddOpen = true">Добавить информацию</button>
+        </form>
+      </div>
     </div>
 
     <div class="plant-container">
+      <div class="search-plants" style="margin-bottom: 1%">
+        <input class="search-input" v-model="filter.species" type="text" placeholder="Поиск растений"/>
+        <button class="green-button-white-text" id="search-button" @click="submitFilter">Найти</button>
+      </div>
+
       <div class="plant-grid">
-        <div v-for="(plant, index) in carePlants" :key="index" class="plant-card">
+        <div v-for="(care, index) in carePlants" :key="index" class="plant-card">
           <div class="plant-content">
-            <img v-if="plant.image" :src="plant.image" alt="Plant Image" class="plant-image" @click="getCare(plant.species)"/>
+            <img v-if="care.image" :src="care.image" alt="Plant Image" class="plant-image" @click="getCare(care.species, care.id)"/>
             <div class="plant-info">
-              <div v-if="plant.species" class="plant-title">{{ plant.species }}</div>
+              <div v-if="care.species" class="plant-title">{{ care.species }}</div>
+              <div v-if="care.type" class="plant-place">{{ care.type }}</div>
             </div>
           </div>
         </div>
+        <div
+            v-for="n in (5 - (carePlants.length % 5))"
+            v-if="carePlants.length % 5 !== 0"
+            class="plant-card placeholder"
+        ></div>
+      </div>
+
+      <div style="display: flex; position: sticky;">
+        <vue-awesome-paginate
+            :total-items="careCount"
+            :items-per-page="15"
+            :max-pages-shown="Math.ceil(careCount / 15)"
+            v-model="currentPage"
+            @click="getCarePlants"
+        />
       </div>
     </div>
   </div>
 
-  <div v-if="showModal" class="modal-overlay" @click.self="clearForm">
-    <div class="modal-content">
-
-      <button class="close-modal" @click="clearForm">X</button>
-      <h1>Информация по уходу</h1>
-      <h3>Заполните основную информацию о растении</h3>
+  <div v-if="isAddOpen" class="modal-overlay" @click="close">
+    <div class="trade-modal-content" @click.stop>
+      <header class="trade-modal-header">
+        <div style="display: flex; justify-content: space-between; width: 100%;">
+          <h2 style="font-family: 'Century Gothic', sans-serif; color: black">Информация по уходу</h2>
+          <button @click="closeAddModal" class="close-button">X</button>
+        </div>
+        <div style="margin-top: 2%;">
+          <h3 style="font-family: 'Century Gothic', sans-serif; color: black; margin: 0">Заполните основную информацию по уходу</h3>
+        </div>
+      </header>
 
       <form @submit.prevent="submitForm">
-        <div class="form-group">
-          <input placeholder="Тип растения" type="text" class="form-group-input" v-model="type" />
+        <div class="inputs-labels">
+          Тип растения
+          <input class="inputs" v-model="formData.type" placeholder="Наименование типа" required/>
         </div>
 
-        <div class="form-group">
-          <input placeholder="Вид растения" type="text" class="form-group-input"  v-model="species" />
+        <div class="inputs-labels">
+          Вид растения
+          <input class="inputs" v-model="formData.species" type="text" placeholder="Наименование вида" required/>
         </div>
 
-        <p>Изображение</p>
-        <div class="form-group">
-          <input type="file" id="imageUpload" @change="onFileChange" />
+        <div class="inputs-labels">Условия освещения</div>
+        <label class="checkbox-labels"><input v-model="formData.lightCondition" type="radio" value="Тенелюбивые" /> Тенелюбивые</label>
+        <br>
+        <label class="checkbox-labels"><input v-model="formData.lightCondition" type="radio" value="Полутеневые" /> Полутеневые</label>
+        <br>
+        <label class="checkbox-labels"><input v-model="formData.lightCondition" type="radio" value="Светолюбивые" /> Светолюбивые</label>
+
+        <div class="inputs-labels">Температурный режим</div>
+        <label class="checkbox-labels"><input v-model="formData.temperatureRegime" type="radio" value="Холодостойкие (до 15°C)" /> Холодостойкие (до 15°C)</label>
+        <br>
+        <label class="checkbox-labels"><input v-model="formData.temperatureRegime" type="radio" value="Средний режим (15-22°C)" /> Средний режим (15-22°C)</label>
+        <br>
+        <label class="checkbox-labels"><input v-model="formData.temperatureRegime" type="radio" value="Теплолюбивые (более 22°C)" /> Теплолюбивые (более 22°C)</label>
+
+        <div class="inputs-labels">
+          Описание
+          <textarea class="inputs" v-model="formData.descriptionAddition" placeholder="Описание ухода"></textarea>
         </div>
 
-        <div class="form-group">
-          <label>Условия освещения</label>
-          <div>
-            <input type="radio" id="shade" value="Тенелюбивые" v-model="lightCondition" />
-            <label for="shade">Тенелюбивые</label>
-          </div>
-          <div>
-            <input type="radio" id="semiShade" value="Полутеневые" v-model="lightCondition" />
-            <label for="semiShade">Полутеневые</label>
-          </div>
-          <div>
-            <input type="radio" id="lightLoving" value="Светолюбивые" v-model="lightCondition" />
-            <label for="lightLoving">Светолюбивые</label>
-          </div>
+        <div class="inputs-labels">
+          Добавлено изображений: {{ formData.image === '' ? 0 : 1 }}
         </div>
 
-        <div class="form-group">
-          <label>Температурный режим</label>
-          <div>
-            <input type="radio" id="coldResistant" value="Холодостойкие (до 15°C)" v-model="temperatureRegime" />
-            <label for="coldResistant">Холодостойкие (до 15°C)</label>
-          </div>
-          <div>
-            <input type="radio" id="moderate" value="Средний режим (15-22°C)" v-model="temperatureRegime" />
-            <label for="moderate">Средний режим (15-22°C)</label>
-          </div>
-          <div>
-            <input type="radio" id="heatLoving" value="Теплолюбивые (более 22°C)" v-model="temperatureRegime" />
-            <label for="heatLoving">Теплолюбивые (более 22°C)</label>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="careDescription">Введите описание ухода за растением</label>
-          <textarea id="careDescription" v-model="descriptionAddition"></textarea>
-        </div>
-
-        <div class="modal-footer">
-          <button type="submit" class="submit-button">Опубликовать</button>
+        <div style="display: flex; align-items: center; justify-content: flex-end">
+          <input
+              type="file"
+              ref="fileInput"
+              @change="addImage"
+              style="display: none"
+          />
+          <button @click="triggerFileInput($event)"  class="white-button-green-text" style="width: 40%; margin-top: 0; margin-right: 1%">Добавить изображение</button>
+          <button type="submit" class="green-button-white-text" style="width: 30%">Опубликовать</button>
         </div>
       </form>
     </div>
   </div>
 
-  <div v-if="isCareModalOpen" class="modal-overlay-care" @click="closeCareModal">
+  <div v-if="isCareOpen" class="modal-overlay" @click="close">
     <div class="modal-content-care" @click.stop>
-      <header class="modal-header-care">
+      <header class="care-modal-header">
         <h2>{{ this.curCareSpec }}. Правила ухода.</h2>
-        <button @click="closeModal" class="close-button-care">X</button>
+        <button @click="closeCareModal" class="close-button">X</button>
       </header>
       <section class="modal-body-care" v-for="(care, index) in currentCare" :key="index">
         <p>{{ care.description }}</p>
         <p class="author">{{ care.author }} {{ formatDate(care.createdAt) }}</p>
+        <hr style="margin-top: 10px; border: 1px solid #ccc;" />
       </section>
     </div>
   </div>
@@ -102,28 +143,43 @@
 <script>
 import Navbar from "@/components/Navbar.vue";
 import axios from "axios";
-
-const CARE_PLANTS_URL = '/api/care';
+import {VueAwesomePaginate} from "vue-awesome-paginate";
+import {ref} from "vue";
 const POST_CARE_URL = '/api/care/new';
 
 export default {
   name: "Care",
-  components: { Navbar },
+  components: { VueAwesomePaginate, Navbar },
 
   data() {
     return {
       carePlants: [],
-      showModal: false,
-      lightCondition: '',
+      isAddOpen: false,
+      filter: {
+        species: '',
+        type: '',
+        lightCondition: [],
+        temperatureRegime: []
+      },
+      currentPage: ref(1),
+      careCount: 0,
+      formData: {
+        type: '',
+        species: '',
+        image: '',
+        temperatureRegime: '',
+        descriptionAddition: '',
+        lightCondition: ''
+      },
       type: '',
       species: '',
       image: '',
       temperatureRegime: '',
-      descriptionAddition: '',
+      lightCondition: '',
       userId: '',
       currentCare: [],
       curCareSpec: '',
-      isCareModalOpen: false
+      isCareOpen: false
     };
   },
 
@@ -133,58 +189,118 @@ export default {
   },
 
   methods: {
+    successAdd() {
+      this.$notify({
+        title: "Получилось!",
+        text: "Описание ухода успешно добавлено.",
+        type: 'success'
+      });
+    },
+
+    errorAdd() {
+      this.$notify({
+        title: "Ошибка!",
+        text: "Произошла ошибка при добавлении описания ухода. Попробуйте снова.",
+        type: 'error'
+      });
+    },
+
+    closeCareModal() {
+      this.isCareOpen = false;
+    },
+
     submitForm() {
       this.postCare();
     },
 
-    closeModal() {
-      this.isCareModalOpen = false;
-      this.currentCare = []
+    closeAddModal() {
+      this.isAddOpen = false;
+      this.clearForm();
     },
 
     clearForm() {
-      this.showModal = false;
-      this.lightCondition = '';
-      this.type = '';
-      this.species = '';
-      this.image = '';
-      this.temperatureRegime = '';
-      this.descriptionAddition = ''
+      this.formData.lightCondition = '';
+      this.formData.type = '';
+      this.formData.species = '';
+      this.formData.image = '';
+      this.formData.temperatureRegime = '';
+      this.formData.descriptionAddition = ''
+    },
+
+    submitFilter() {
+      this.currentPage = ref(1);
+      this.getCarePlants();
     },
 
     async getCarePlants() {
+      this.carePlants = [];
+
+      const careFilter = {
+        filter: {
+          species: this.filter.species,
+          type: this.filter.type,
+          lightCondition: this.filter.lightCondition,
+          temperatureRegime: this.filter.temperatureRegime
+        }
+      }
+
       axios
-          .get(CARE_PLANTS_URL)
+          .post(`/api/care/${this.currentPage}/15`, careFilter)
           .then((response) => {
             response.data.plants.forEach(elem => {
               let plant = {
                 image: elem.image,
-                species: elem.species
+                species: elem.species,
+                id: elem.ruleId,
+                type: elem.type
               };
               this.carePlants.push(plant)
             })
-          })
+            this.careCount = parseInt(response.data.count);
+          });
+    },
+
+    triggerFileInput(event) {
+      event.preventDefault();
+      this.$refs.fileInput.click();
+    },
+
+    addImage(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.formData.image = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
     },
 
     async postCare() {
       const careData = {
-        species: this.species,
-        descriptionAddition: this.descriptionAddition,
+        species: this.formData.species,
+        descriptionAddition: this.formData.descriptionAddition,
+        type: this.formData.type,
+        lightCondition: this.formData.lightCondition,
+        temperatureRegime: this.formData.temperatureRegime,
+        image: this.formData.image,
         userId: this.userId
       }
       try {
         await axios.post(POST_CARE_URL, careData);
-        alert('Правило ухода успешно добавлено!');
-        this.clearForm();
+        this.successAdd();
+        this.closeAddModal();
+        await this.getCarePlants();
       } catch (error) {
-        alert('Произошла ошибка при добавлении правила ухода. Попробуйте снова.');
+        this.errorAdd();
       }
     },
 
-    async getCare(species) {
+    async getCare(species, id) {
+      this.currentCare = [];
       this.curCareSpec = species;
       axios
-          .get(`/api/care/${species}`)
+          .get(`/api/care/${id}`)
           .then((response) => {
             response.data.careRules.forEach(elem => {
               const str1 = elem.user.userSurname;
@@ -199,7 +315,7 @@ export default {
               this.currentCare.push(care)
             })
           })
-      this.isCareModalOpen = true;
+      this.isCareOpen = true;
     },
 
     formatDate(dateString) {
@@ -220,164 +336,47 @@ export default {
 </script>
 
 <style scoped>
-.page-layout {
-  display: flex;
+@import "../../../main.css";
+@import "../../../plants.css";
+@import "../../../modal.css";
+
+#search-button {
+  margin-left: 1%;
+  width: 8%;
 }
 
-.sidebar {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 20px;
-  padding-left: 10px;
+.author {
+  color: #666;
+  font-size: 0.9em;
+  margin-top: 15px;
+  text-align: right;
 }
 
-.logo {
-  margin-top: 15%;
-  width: 200px;
-  height: auto;
+.care-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 10px;
   margin-bottom: 10px;
 }
 
-.add-info-button {
-  font-family: 'Century Gothic', sans-serif;
-  font-size: 13px;
-  font-weight: bold;
-  color: #89A758;
-  background-color: transparent;
-  border: 2px solid #89A758;
-  border-radius: 10px;
-  padding: 10px 15px;
-  cursor: pointer;
+.trade-modal-header {
   display: flex;
-  align-items: center;
-  position: relative;
-}
-
-.plant-container {
-  margin-top: 10%;
-  margin-left: 1%;
-}
-
-.plant-grid {
-  display: flex;
-  flex-wrap: wrap;
   justify-content: space-between;
-}
-
-.plant-card {
-  width: 19%;
-  box-sizing: border-box;
-  margin-bottom: 30px;
-}
-
-.plant-content {
-  display: flex;
-  flex-direction: column;
   align-items: flex-start;
-}
-
-.plant-image {
-  width: 170px;
-  height: 170px;
-  margin-bottom: 5px;
-}
-
-.plant-info {
-  text-align: left;
-}
-
-.plant-title {
-  color: #89A758;
-  font-weight: bold;
-}
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  position: relative;
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  width: 400px;
-  max-width: 90%;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.form-group {
-  margin-bottom: 15px;
-}
-
-.form-group-input {
-  width: 100%;
-  padding-top: 10px;
+  border-bottom: 1px solid #ccc;
   padding-bottom: 10px;
-  border: 1px solid #EEECEC;
-  border-radius: 10px;
-  background-color: #EEECEC;
+  margin-bottom: 10px;
+  flex-direction: column;
 }
 
-.close-modal {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  font-size: 20px;
-  border: none;
-  background: transparent;
-  color: #000;
-  cursor: pointer;
+.trade-modal-header h2 {
+  font-size: 1.5em;
+  margin: 0;
 }
 
-.submit-button {
-  background-color: #89A758;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-textarea {
-  width: 100%;
-  height: 70px;
-  border-radius: 8px;
-  border: 1px solid #EEECEC;
-  background-color: #EEECEC;
-  resize: none;
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 20px;
-}
-
-.modal-overlay-care {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-content-care {
+.trade-modal-content {
   background: #fff;
   width: 60%;
   max-width: 500px;
@@ -386,38 +385,10 @@ textarea {
   position: relative;
 }
 
-.modal-header-care {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #ccc;
-  padding-bottom: 10px;
-  margin-bottom: 10px;
-}
-
-.modal-header-care h2 {
-  font-size: 1.5em;
-  margin: 0;
-}
-
-.close-button-care {
-  background: none;
-  border: none;
-  font-size: 1.5em;
-  cursor: pointer;
-  color: #333;
-}
-
-.modal-body-care p {
-  margin: 10px 0;
-  line-height: 1.6;
-  font-size: 1em;
-}
-
-.author {
-  color: #666;
-  font-size: 0.9em;
-  margin-top: 15px;
-  text-align: right;
+.modal-body p {
+  margin: 1px 0;
+  line-height: 1.2;
+  font-size: 14px;
+  color: black;
 }
 </style>

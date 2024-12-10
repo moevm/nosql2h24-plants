@@ -12,7 +12,6 @@ import (
 )
 
 func (s *Storage) ImportDB(ctx context.Context, jsonData []byte) error {
-	// Очистка базы данных
 	collections, err := s.Client.Database("plants_market").ListCollectionNames(ctx, bson.D{})
 	if err != nil {
 		return errors.New("ошибка получения списка коллекций: " + err.Error())
@@ -24,21 +23,22 @@ func (s *Storage) ImportDB(ctx context.Context, jsonData []byte) error {
 	}
 	log.Println("База данных успешно очищена.")
 
-	// Парсим JSON-данные
 	var data map[string][]bson.M
 	if err := json.Unmarshal(jsonData, &data); err != nil {
 		return errors.New("ошибка парсинга JSON: " + err.Error())
 	}
 
-	// Импортируем данные в каждую коллекцию
 	for collectionName, documents := range data {
 		if len(documents) == 0 {
 			continue
 		}
 
 		collection := s.Client.Database("plants_market").Collection(collectionName)
-		s := []any{documents}
-		_, err := collection.InsertMany(ctx, s)
+		var interfaceDoc []interface{}
+		for _, doc := range documents {
+			interfaceDoc = append(interfaceDoc, doc)
+		}
+		_, err := collection.InsertMany(ctx, interfaceDoc)
 		if err != nil {
 			return errors.New("ошибка вставки данных в коллекцию " + collectionName + ": " + err.Error())
 		}
@@ -51,7 +51,6 @@ func (s *Storage) ExportDB(ctx context.Context) ([]byte, error) {
 	data := make(map[string]interface{})
 	collections := []string{"users", "plants", "trades", "care_rules"}
 
-	// Читаем данные из всех коллекций
 	for _, col := range collections {
 		collectionData, err := readCollection(ctx, s.Client, "plants_market", col)
 		if err != nil {
@@ -60,8 +59,11 @@ func (s *Storage) ExportDB(ctx context.Context) ([]byte, error) {
 		data[col] = sanitizeData(collectionData)
 	}
 
-	// Преобразуем данные в JSON
+	log.Println("export before marshal")
+	log.Println(data)
 	jsonData, err := json.Marshal(data)
+	log.Println("export after marshal")
+	log.Println(jsonData)
 	if err != nil {
 		return nil, errors.New("ошибка преобразования данных в JSON: " + err.Error())
 	}

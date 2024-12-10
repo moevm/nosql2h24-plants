@@ -12,14 +12,15 @@
     <button class="my-ads-button" @click="navigate(role === 0 ? 4 : 3)">Мои объявления</button>
 
     <div v-if="isOpen" class="modal-overlay" @click="close">
-      <div class="modal-content" @click.stop>
-        <header class="modal-header">
+      <div class="trade-modal-content" @click.stop>
+        <header class="trade-modal-header">
           <div style="display: flex; justify-content: space-between; width: 100%;">
-            <h2>Запросы</h2>
+            <h2 style="font-family: 'Century Gothic', sans-serif; color: black">Запросы</h2>
             <button @click="closeModal" class="close-button">X</button>
           </div>
           <div style="margin-top: 2%;">
-            <span :style="{ fontWeight: selected === 'in' ? 'bold' : 'normal', color: 'black', fontSize: '14px'}" @click="select('in')" class="clickable">
+            <span :style="{ fontWeight: selected === 'in' ? 'bold' : 'normal', color: 'black', fontSize: '14px'}"
+                  @click="select('in')" class="clickable">
               Входящие
             </span>
             <span :style="{ fontWeight: selected === 'out' ? 'bold' : 'normal', color: 'black', fontSize: '14px' }" @click="select('out')" class="clickable">
@@ -27,23 +28,48 @@
             </span>
           </div>
         </header>
+
         <section v-if="selected === 'in'" class="modal-body" v-for="(trades, index) in inT" :key="index">
-          <p :style="{fontWeight: 'bold'}">{{ trades.offerer }} предлагает</p>
-          <p>{{ trades.plant_in }}</p>
-          <p :style="{fontWeight: 'bold'}">В обмен на</p>
-          <p>{{ trades.plant_out }}</p>
-          <div style="margin-top: 2%; display: flex; gap: 10px;">
-            <button class="trade-button">Согласиться</button>
-            <button class="trade-button">Отказаться</button>
+          <div style="display: flex;flex-direction: row">
+            <div style="display: flex;flex-direction: row">
+              <img v-if="trades.plant_in_image" :src="trades.plant_in_image" alt="Plant Image" class="trade-plant-image" />
+              <i class="icon fa fa-arrows-h"
+                 style="color: #7E7E7E; display: flex; justify-content: center; align-items: center; margin-left: 2%; margin-right: 2%"
+              ></i>
+              <img v-if="trades.plant_out_image" :src="trades.plant_out_image" alt="Plant Image" class="trade-plant-image" />
+            </div>
+            <div style="margin-left: 4%">
+              <p :style="{fontWeight: 'bold'}">{{ trades.offerer }} предлагает</p>
+              <p>{{ trades.plant_in }}</p>
+              <p :style="{fontWeight: 'bold'}">В обмен на</p>
+              <p>{{ trades.plant_out }}</p>
+              <div style="margin-top: 2%; display: flex; gap: 10px;">
+                <button class="trade-button" @click="acceptTrade(trades.id)">Согласиться</button>
+                <button class="trade-button" @click="rejectTrade(trades.id)">Отказаться</button>
+              </div>
+            </div>
           </div>
+          <hr style="margin-top: 10px; border: 1px solid #ccc;" />
         </section>
+
         <section v-if="selected === 'out'" class="modal-body" v-for="(trades, index) in outT" :key="index">
-          <p :style="{fontWeight: 'bold'}">Вы предложили</p>
-          <p>{{ trades.plant_out }}</p>
-          <p :style="{fontWeight: 'bold'}">В обмен на</p>
-          <p>{{ trades.plant_in }}</p>
-          <p :style="{fontWeight: 'bold', color: '#89A758'}">Статус</p>
-          <p>{{ trades.status }}</p>
+          <div style="display: flex;flex-direction: row">
+            <div style="display: flex;flex-direction: row">
+              <img v-if="trades.plant_out_image" :src="trades.plant_in_image" alt="Plant Image" class="trade-plant-image" />
+              <i class="icon fa fa-arrows-h"
+                 style="color: #7E7E7E; display: flex; justify-content: center; align-items: center; margin-left: 2%; margin-right: 2%"
+              ></i>
+              <img v-if="trades.plant_in_image" :src="trades.plant_out_image" alt="Plant Image" class="trade-plant-image" />
+            </div>
+            <div style="margin-left: 4%">
+              <p :style="{fontWeight: 'bold'}">Вы предложили</p>
+              <p>{{ trades.plant_out }}</p>
+              <p :style="{fontWeight: 'bold'}">В обмен на</p>
+              <p>{{ trades.plant_in }}</p>
+              <p :style="{fontWeight: 'bold', color: '#89A758'}">Статус</p>
+              <p>{{ trades.status }}</p>
+            </div>
+          </div>
           <hr style="margin-top: 10px; border: 1px solid #ccc;" />
         </section>
       </div>
@@ -85,13 +111,11 @@ export default {
   beforeMount() {
     this.role = sessionStorage.getItem("role");
     this.id = sessionStorage.getItem("id");
-    this.getIn();
-    this.getOut();
   },
 
   computed: {
     menuItems() {
-      return this.role === 0 ? this.adminItems : this.regularItems;
+      return this.role === 1 ? this.adminItems : this.regularItems;
     }
   },
 
@@ -105,6 +129,8 @@ export default {
 
     openModal() {
       this.isOpen = true;
+      this.getIn();
+      this.getOut();
     },
 
     closeModal() {
@@ -115,15 +141,35 @@ export default {
       this.selected = type;
     },
 
+    reject() {
+      this.$notify({
+        title: "Отклонено!",
+        text: "Вы отклонили предложение по обмену.",
+        type: 'error'
+      });
+    },
+
+    accept() {
+      this.$notify({
+        title: "Принято!",
+        text: "Обмен растениями успешно совершен.",
+        type: 'success'
+      });
+    },
+
     async getIn() {
       axios
           .get(`/api/trade/in/${this.id}`)
           .then((response) => {
+            this.inT = [];
             response.data.trade.forEach(elem => {
               let in_trade = {
                 offerer: elem.offerer.name,
                 plant_in: elem.offerer.plant.name,
+                plant_in_image: elem.offerer.plant.image,
                 plant_out: elem.accepter.plant.name,
+                plant_out_image: elem.accepter.plant.image,
+                id: elem.id
               };
               this.inT.push(in_trade)
             })
@@ -134,6 +180,7 @@ export default {
       axios
           .get(`/api/trade/out/${this.id}`)
           .then((response) => {
+            this.outT = [];
             response.data.trade.forEach(elem => {
               let trade_status = '';
               switch (elem.status) {
@@ -153,10 +200,30 @@ export default {
               let out_trade = {
                 plant_out: elem.offerer.plant.name,
                 plant_in: elem.accepter.plant.name,
+                plant_out_image: elem.accepter.plant.image,
+                plant_in_image: elem.offerer.plant.image,
                 status: trade_status
               };
               this.outT.push(out_trade)
             })
+          })
+    },
+
+    async acceptTrade(trade_id) {
+      axios
+          .post(`/api/trade/accept/${trade_id}`)
+          .then((response) => {
+            this.accept();
+            this.getIn();
+          })
+    },
+
+    async rejectTrade(trade_id) {
+      axios
+          .post(`/api/trade/reject/${trade_id}`)
+          .then((response) => {
+            this.reject();
+            this.getIn();
           })
     },
   }
@@ -164,6 +231,9 @@ export default {
 </script>
 
 <style scoped>
+@import "../../main.css";
+@import "../../modal.css";
+
 .navbar {
   display: flex;
   align-items: center;
@@ -192,6 +262,7 @@ export default {
 }
 
 .my-ads-button {
+  font-family: 'Century Gothic', sans-serif;
   padding: 8px 16px;
   background-color: #89A758;
   color: #fff;
@@ -200,6 +271,7 @@ export default {
   cursor: pointer;
   font-size: 14px;
   margin-left: 20px;
+  font-weight: bold;
 }
 
 .my-ads-button:hover {
@@ -211,49 +283,28 @@ export default {
   margin-right: 10px;
 }
 
-.modal-overlay {
-  font-family: 'Century Gothic', sans-serif;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+.trade-modal-header {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  flex-direction: column;
 }
 
-.modal-content {
+.trade-modal-header h2 {
+  font-size: 1.5em;
+  margin: 0;
+}
+
+.trade-modal-content {
   background: #fff;
   width: 60%;
   max-width: 500px;
   padding: 20px;
   border-radius: 8px;
   position: relative;
-}
-
-.modal-header {
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #ccc;
-  padding-bottom: 10px;
-  margin-bottom: 10px;
-}
-
-.modal-header h2 {
-  color: black;
-  font-size: 1.5em;
-  margin: 0;
-}
-
-.close-button {
-  background: none;
-  border: none;
-  font-size: 1.5em;
-  cursor: pointer;
-  color: #333;
 }
 
 .modal-body p {
@@ -275,5 +326,14 @@ export default {
   display: inline-flex;
   align-items: center;
   position: relative;
+}
+
+.trade-plant-image {
+  width: 110px;
+  height: 110px;
+}
+
+span {
+  font-family: 'Century Gothic', sans-serif;
 }
 </style>

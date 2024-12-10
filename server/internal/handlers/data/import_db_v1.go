@@ -1,51 +1,29 @@
 package data
 
 import (
-	"fmt"
-	"io"
+	"context"
 	"os"
 
 	api "plants/internal/pkg/pb/data/v1"
 )
 
-func (h *Handler) StreamImportDBV1(
-	stream api.DataAPI_ImportDBV1Server,
-) error {
-	ctx := stream.Context()
-
-	// Создаём временный файл для записи полученных данных
+func (h *Handler) ImportDBV1(
+	ctx context.Context,
+	req *api.ImportDBV1Request,
+) (*api.ImportDBV1Response, error) {
 	filePath := "imported_db.json"
-	file, err := os.Create(filePath)
+	err := os.WriteFile(filePath, req.Db, 0644)
 	if err != nil {
-		return fmt.Errorf("ошибка создания файла: %w", err)
+		return nil, err
 	}
-	defer file.Close()
-
-	// Читаем части данных из стрима
-	for {
-		req, err := stream.Recv()
-		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			return fmt.Errorf("ошибка получения данных: %w", err)
-		}
-
-		// Записываем данные в файл
-		if _, err := file.Write(req.Db); err != nil {
-			return fmt.Errorf("ошибка записи в файл: %w", err)
-		}
-	}
-
-	// Читаем данные из файла и импортируем в базу данных
-	jsonData, err := os.ReadFile(filePath)
+	defer os.Remove(filePath)
+	fileData, err := os.ReadFile(filePath)
 	if err != nil {
-		return fmt.Errorf("ошибка чтения файла: %w", err)
+		return nil, err
 	}
-
-	if err := h.storage.ImportDB(ctx, jsonData); err != nil {
-		return fmt.Errorf("ошибка импорта данных: %w", err)
+	err = h.storage.ImportDB(ctx, fileData)
+	if err != nil {
+		return nil, err
 	}
-
-	return nil
+	return &api.ImportDBV1Response{}, nil
 }
